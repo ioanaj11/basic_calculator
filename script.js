@@ -61,12 +61,26 @@ function getValue(num){
     value = value + num;
  }
 
+//maximum number of decimals the calculator can work with is 9;
+//this function removes the zeroes at the end of decimal numbers and 
+//the "." in case the number is an Integer
+function removeZero(str){
+    if (str.indexOf(".")>0){
+        let i=str.length-1;
+        while ((str[i]==="0")&&(i>(str.indexOf(".")))){
+            str=str.substring(0, i);
+            i--;
+        }};
+    if (str.indexOf(".") === str.length-1) str=str.substring(0, str.length-1);
+    return str;
+}
+
 //based on the class of the button pressed by the user, the calculator performs the necessary operations, displaying the results on the screen;
 const container=document.querySelector(".container");
 container.addEventListener('click', e => {
     switch (e.target.className){
         case "operator":
-            if (operator!=""){
+            if ((operator!="")&&(value!="")){
                 numbers.push(value);
                 displayUp(`${numbers[0]} ${operator} ${numbers[1]} =`);
                 value=operate(operator, parseFloat(numbers[0]), parseFloat(numbers[1])).toString();
@@ -82,8 +96,9 @@ container.addEventListener('click', e => {
         case "number":
             if (value ==="0") value="";
             if (value ===".") value="0.";
-            getValue(e.target.textContent);
-            displayDown(value);
+            if (value.length <= 10){
+                getValue(e.target.textContent);
+                displayDown(value)}
             break;
         case "clearBtn": 
             value='';
@@ -104,7 +119,8 @@ container.addEventListener('click', e => {
             if ((value!="")&&(operator!="")){
                 numbers.push(value);
                 displayUp(`${numbers[0]} ${operator} ${numbers[1]} =`)
-                value=operate(operator, parseFloat(numbers[0]), parseFloat(numbers[1])).toString();
+                value=operate(operator, parseFloat(numbers[0]), parseFloat(numbers[1])).toFixed(9);
+                value=removeZero(value);
                 numbers.splice(0, 2);
                 operator="";
                 displayDown(value)}
